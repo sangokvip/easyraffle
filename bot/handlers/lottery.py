@@ -134,7 +134,7 @@ async def ask_preset(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
     data = context.user_data.get("new_lottery", {})
     text = (message.text or "").strip().lower()
-   if text not in {"random", "preset"}:
+    if text not in {"random", "preset"}:
         await message.reply_text("请输入 random 或 preset：")
         return ASK_STRATEGY
     data["strategy"] = text
