@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Optional
 
 from loguru import logger
 from telegram.ext import Application
@@ -42,9 +41,19 @@ def run_polling(application: Application) -> None:
     application.run_polling(drop_pending_updates=True)
 
 
+def ensure_event_loop() -> None:
+    """Prepare an event loop for PTB when running in sync context."""
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+
 def main() -> None:
     configure_logging()
     asyncio.run(init_db())
+    ensure_event_loop()
     application = build_application()
     if settings.webhook_url:
         run_webhook(application)
