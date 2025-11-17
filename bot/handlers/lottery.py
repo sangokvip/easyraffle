@@ -218,11 +218,15 @@ async def join_lottery(update: Update, context: CallbackContext) -> None:
             await message.reply_text("当前没有可参与的抽奖。")
             return
 
-        if lottery.join_deadline and datetime.now(timezone.utc) > lottery.join_deadline:
-            lottery.status = LotteryStatus.CLOSED
-            await session.commit()
-            await message.reply_text("报名已截止。")
-            return
+        if lottery.join_deadline:
+            deadline = lottery.join_deadline
+            if deadline.tzinfo is None:
+                deadline = deadline.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > deadline:
+                lottery.status = LotteryStatus.CLOSED
+                await session.commit()
+                await message.reply_text("报名已截止。")
+                return
 
         user = update.effective_user
         if not user:
